@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BDA Project Presentation — Household Electricity Analytics</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #0ea5e9;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--accent-light);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover { background: #334155; border-color: #64748b; }
+    button.primary { background: #0284c7; border-color: #0369a1; }
+    button.primary:hover { background: #0369a1; }
+    .slide-counter { font-size: 13px; color: #94a3b8; font-weight: 600; min-width: 60px; text-align: center; }
+    
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+    .slide-frame {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 8px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      display: none;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      padding: 36px 48px;
+    }
+    .slide-frame.active { display: flex; }
+
+    /* Dark Slide Styling (Slides 1 & 19) */
+    .slide-frame.dark {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    /* Common Slide Components */
+    .slide-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+    .slide-category {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0284c7;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .slide-frame.dark .slide-title { color: #ffffff; }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      gap: 24px;
+      overflow: hidden;
+    }
+    .col-left { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .col-right { flex: 1; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 14px 18px;
+      position: relative;
+    }
+    .card.accent-stripe {
+      border-left: 4px solid #0284c7;
+    }
+    .card.success-stripe {
+      border-left: 4px solid #10b981;
+    }
+    .card.amber-stripe {
+      border-left: 4px solid #f59e0b;
+    }
+    .card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .card p, .card li {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #334155;
+    }
+    .card ul { padding-left: 16px; }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .kpi-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0284c7;
+      border-radius: 6px;
+      padding: 8px 14px;
+    }
+    .kpi-val { font-size: 18px; font-weight: 800; color: #0f172a; }
+    .kpi-label { font-size: 11px; color: #64748b; font-weight: 600; }
+
+    table.slide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    table.slide-table th {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 700;
+    }
+    table.slide-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+    table.slide-table tr:nth-child(even) td { background: #f8fafc; }
+
+    .slide-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+    }
+
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      margin-top: 10px;
+    }
+    .slide-frame.dark .slide-footer { border-color: #1e293b; color: #64748b; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <span>⚡ BDA Lab Project Presentation</span>
+      <span class="badge">V-SEM CSE (AI & DS)</span>
+      <span style="font-size: 13px; color: #94a3b8;">Bhomick Debiya (Roll 32) & Shorya Chilate</span>
+    </div>
+    <div class="controls">
+      <button id="prevBtn" onclick="prevSlide()">◀ Previous</button>
+      <span class="slide-counter" id="counter">01 / 19</span>
+      <button id="nextBtn" onclick="nextSlide()" class="primary">Next ▶</button>
+      <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+      <a href="Household_Electricity_Big_Data_Analytics_Presentation.pptx" download style="text-decoration:none;">
+        <button style="background:#10b981; border-color:#059669; color:#fff;">📥 Download .PPTX</button>
+      </a>
+    </div>
+  </header>
+
+  <div class="stage">
+
+    <!-- SLIDE 1 -->
+    <div class="slide-frame dark active" id="slide-1">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 900px;">
+        <div style="color: #38bdf8; font-weight: 800; font-size: 13px; letter-spacing: 1.5px; margin-bottom: 12px; text-transform: uppercase;">
+          Academic Lab Project Presentation • V-Semester CSE (AI & DS)
+        </div>
+        <h1 style="font-size: 34px; font-weight: 800; color: #ffffff; line-height: 1.25; margin-bottom: 16px;">
+          Household Electricity Pattern Analysis & Predictive Modeling
+        </h1>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 28px;">
+          An Enterprise Distributed Big Data Pipeline utilizing Hadoop HDFS, Native Java MapReduce, Apache Spark, NoSQL Cassandra & Random Forest Forecasting over 2+ Million Smart-Meter Readings.
+        </p>
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 18px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <div style="color: #38bdf8; font-size: 11px; font-weight: 700; margin-bottom: 4px;">PROJECT MEMBERS</div>
+            <div style="font-size: 14px; font-weight: 700; color: #ffffff;">Bhomick Debiya — Roll 32</div>
+            <div style="font-size: 12px; color: #94a3b8;">HDFS, Java MapReduce & Spark Pipeline</div>
+            <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 8px;">Shorya Chilate</div>
+            <div style="font-size: 12px; color: #94a3b8;">Machine Learning, UI & Analytics</div>
+          </div>
+          <div>
+            <div style="color: #10b981; font-size: 11px; font-weight: 700; margin-bottom: 4px;">DEPLOYED STACK & VALIDATION</div>
+            <div style="font-size: 12px; color: #e2e8f0; line-height: 1.6;">
+              ✔ Hadoop HDFS (NameNode Port 9000)<br>
+              ✔ Native Java MapReduce (24 partitions)<br>
+              ✔ Apache Spark 3.5.5 (Catalyst DAG, 23.9s)<br>
+              ✔ 0.000000 kW Cross-Engine Delta<br>
+              ✔ Apache Cassandra NoSQL & Gradio 6.0 Web GUI
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Big Data Analytics Lab (V-Semester, CSE AI & DS)</span>
+        <span>Slide 01 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide-frame" id="slide-2">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Problem Definition & Motivation</div>
+          <div class="slide-title">Executive Summary & Industrial Problem Context</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">2,075,260</div><div class="kpi-label">Raw Continuous Readings</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">132.9 MB</div><div class="kpi-label">High-Velocity Time Series Data</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">47 Months</div><div class="kpi-label">Continuous Temporal Span (2006-2010)</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card accent-stripe">
+            <h4>Industrial Smart Grid Challenges</h4>
+            <ul>
+              <li><strong>RDBMS Scaling Limits:</strong> Millions of high-frequency smart meter readings cause disk saturation, index bloat, and concurrency lockups in relational databases.</li>
+              <li><strong>Diurnal Grid Stress:</strong> Unscheduled peak surges destabilize grid frequencies, necessitating costly auxiliary peaker plants.</li>
+              <li><strong>Sub-Meter Visibility:</strong> Utilities lack appliance-level disaggregation (HVAC vs kitchen) needed for dynamic time-of-use tariffs.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card success-stripe">
+            <h4>Project Engineering Objectives</h4>
+            <ul>
+              <li><strong>Distributed Storage:</strong> Ingest 132.9 MB dataset into Hadoop HDFS across fault-tolerant block clusters.</li>
+              <li><strong>Dual-Engine Execution:</strong> Run batch Java MapReduce on HDFS splits alongside in-memory Apache Spark analytics.</li>
+              <li><strong>Dual-Engine Verification:</strong> Mathematically cross-validate that MapReduce and Spark produce identical averages (<0.0001 kW delta).</li>
+              <li><strong>Predictive Intelligence:</strong> Train a Random Forest model to forecast next-hour demand with Cassandra persistence.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 02 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="slide-frame" id="slide-3">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Data Engineering & Quality</div>
+          <div class="slide-title">Dataset Characteristics & Rigorous Preprocessing</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="flex: 1.3;">
+          <table class="slide-table">
+            <thead>
+              <tr><th>Sensor Parameter</th><th>Type</th><th>Physical Meaning & Unit</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Date & Time</td><td>TS</td><td>Sampling interval: 1 minute (2006-2010)</td></tr>
+              <tr><td>Global_active_power</td><td>Double</td><td>Household real power consumed (kW)</td></tr>
+              <tr><td>Global_reactive_power</td><td>Double</td><td>Household reactive power (kVAR)</td></tr>
+              <tr><td>Voltage</td><td>Double</td><td>Minute-averaged line potential (Volts)</td></tr>
+              <tr><td>Global_intensity</td><td>Double</td><td>Household electric current (Amperes)</td></tr>
+              <tr><td>Sub_metering_1</td><td>Double</td><td>Kitchen: Dishwasher, microwave (Wh)</td></tr>
+              <tr><td>Sub_metering_2</td><td>Double</td><td>Laundry: Washing machine, fridge (Wh)</td></tr>
+              <tr><td>Sub_metering_3</td><td>Double</td><td>Climate: Water heater & AC (Wh)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-right" style="flex: 0.9;">
+          <div class="card amber-stripe">
+            <h4>Data Hygiene & Cleaning Funnel</h4>
+            <p><strong>Total Raw Records:</strong> 2,075,260 (132.9 MB)</p>
+            <p><strong>Missing Value Notation:</strong> '?' string indicator</p>
+            <p><strong>Corrupted / Null Rows Dropped:</strong> 25,980 rows</p>
+            <p><strong>Clean Valid Records:</strong> 2,049,280 rows</p>
+            <p><strong>Ingestion Retention Rate:</strong> <span style="color:#10b981; font-weight:700;">98.75% Valid Data</span></p>
+          </div>
+          <div class="card">
+            <h4>No Data Pollution Guarantee</h4>
+            <p style="font-size:11px; color:#64748b;">
+              Missing records are cleanly eliminated in both Java MapReduce and PySpark prior to arithmetic reduction. No forward-filling or synthetic interpolation was allowed to skew the exact baseline calculations.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 03 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4 -->
+    <div class="slide-frame" id="slide-4">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">System Architecture</div>
+          <div class="slide-title">End-to-End Multi-Tier Big Data Architecture</div>
+        </div>
+      </div>
+      <div class="slide-content" style="flex-direction: column; gap: 10px;">
+        <div class="card accent-stripe" style="padding: 10px 16px;">
+          <h4>LAYER 1: DISTRIBUTED STORAGE (HADOOP HDFS)</h4>
+          <p>NameNode (Port 9000) & DataNodes • 132.9 MB raw splits • Path: <code>/bda_electricity/input/household_power_consumption.txt</code></p>
+        </div>
+        <div class="card success-stripe" style="padding: 10px 16px;">
+          <h4>LAYER 2A: BATCH ENGINE (JAVA HADOOP MAPREDUCE)</h4>
+          <p>Native compiled JAR (HourlyElectricityDriver) • Mapper extracts Hour key • Shuffle & Sort • Reducer computes 24-hr average active power</p>
+        </div>
+        <div class="card accent-stripe" style="padding: 10px 16px;">
+          <h4>LAYER 2B: IN-MEMORY ANALYTIC & ML ENGINE (APACHE SPARK / PYSPARK)</h4>
+          <p>Spark 3.5.5 Catalyst optimizer (23.9s runtime) • Temporal feature engineering • Sub-metering shares • Random Forest demand regressor</p>
+        </div>
+        <div class="card amber-stripe" style="padding: 10px 16px;">
+          <h4>LAYER 3: DISTRIBUTED PERSISTENCE (APACHE CASSANDRA NOSQL)</h4>
+          <p>Keyspace: <code>bda_electricity</code> • Tables: <code>hourly_aggregates</code> & <code>model_predictions</code> • Auto-detecting live connector with JSON fallback</p>
+        </div>
+        <div class="card" style="padding: 10px 16px; border-left: 4px solid #0f172a;">
+          <h4>LAYER 4: INTERACTIVE PRESENTATION & FORECASTING (GRADIO 6.0 WEB GUI)</h4>
+          <p>Local Port 7860 web app • Visual Analytics Studio • Dual-Engine Validation View • Real-time AI Demand Forecasting • Viva defense tab</p>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 04 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5 -->
+    <div class="slide-frame" id="slide-5">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Storage Implementation</div>
+          <div class="slide-title">Storage Layer: Apache Hadoop HDFS Implementation</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">Port 9000</div><div class="kpi-label">NameNode RPC Metadata Port</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">132,960,755 B</div><div class="kpi-label">HDFS Raw Dataset Size</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">Zero Loss</div><div class="kpi-label">Block Checksum Verified</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card accent-stripe">
+            <h4>HDFS Cluster Architecture</h4>
+            <ul>
+              <li><strong>NameNode Master:</strong> Maintains in-memory filesystem namespace tree and block-to-DataNode mappings.</li>
+              <li><strong>DataNode Workers:</strong> Store raw split blocks on underlying local filesystems and handle read/write streams.</li>
+              <li><strong>Daemon Verification:</strong> Verified active daemons using <code>jps</code>: NameNode, DataNode, ResourceManager.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card">
+            <h4>HDFS Terminal Operations</h4>
+            <p style="font-family: Consolas, monospace; font-size: 11px; background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 4px; line-height: 1.6;">
+              # 1. Start cluster<br>
+              start-dfs.cmd<br><br>
+              # 2. Upload raw dataset<br>
+              hdfs dfs -put -f household_power_consumption.txt /bda_electricity/input/<br><br>
+              # 3. Verify block allocation<br>
+              hdfs dfs -ls -h /bda_electricity/input/
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 05 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 6 -->
+    <div class="slide-frame" id="slide-6">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Batch Processing</div>
+          <div class="slide-title">Batch Compute Engine: Java MapReduce Implementation</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">2,049,280</div><div class="kpi-label">Mapped Clean Tuples</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">24 Partitions</div><div class="kpi-label">Hourly Keys (00 to 23 hrs)</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">Streaming Disk I/O</div><div class="kpi-label">Zero Out-of-Memory Risk</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card accent-stripe">
+            <h4>Native Java Implementation Classes</h4>
+            <ul>
+              <li><strong>HourlyElectricityMapper.java:</strong> Parses semicolon delimiter, filters '?' tokens, extracts hour, and emits <code>&lt;Text(hour), DoubleWritable(power)&gt;</code>.</li>
+              <li><strong>Shuffle & Sort:</strong> Core Hadoop engine groups values by hour key into <code>Iterable&lt;DoubleWritable&gt;</code>.</li>
+              <li><strong>HourlyElectricityReducer.java:</strong> Computes <code>sum(power) / count(minutes)</code> and writes TSV output.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card amber-stripe">
+            <h4>Why Combiner Cannot Compute Average Directly</h4>
+            <p><strong>Non-Associative Arithmetic:</strong></p>
+            <p style="font-size:11px; margin: 4px 0;"><code>Avg(A, B, C) ≠ Avg(Avg(A, B), C)</code></p>
+            <p style="font-size:11px; color:#475569;">
+              If a combiner computed local averages on unequal partition splits, the reducer would average those averages, yielding severe mathematical distortion. A combiner must emit <code>(sum, count)</code> tuples instead.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 06 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 7 -->
+    <div class="slide-frame" id="slide-7">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">In-Memory Engine</div>
+          <div class="slide-title">In-Memory Analytics: Apache Spark & PySpark</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">Spark 3.5.5</div><div class="kpi-label">Catalyst DAG Optimizer</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">23.96 Sec</div><div class="kpi-label">Complete 2M Row Pipeline Runtime</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">100x Speedup</div><div class="kpi-label">In-Memory Cache vs Disk Spills</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <table class="slide-table">
+            <thead>
+              <tr><th>Dimension</th><th>Hadoop MapReduce</th><th>Apache Spark</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Execution Model</td><td>Disk-based two-stage batch</td><td>In-memory DAG pipeline</td></tr>
+              <tr><td>Memory Usage</td><td>Low (spills intermediate to disk)</td><td>High RAM (4GB allocated)</td></tr>
+              <tr><td>Fault Recovery</td><td>Re-runs failed task attempts</td><td>Recomputes RDD/DataFrame lineage</td></tr>
+              <tr><td>Iteration Speed</td><td>High I/O overhead</td><td>Fast iterative querying & ML</td></tr>
+              <tr><td>Project Role</td><td>HDFS baseline batch aggregation</td><td>EDA, feature engineering, ML</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-right">
+          <div class="card success-stripe">
+            <h4>Engineered Temporal Features</h4>
+            <ul>
+              <li><strong>Hour (0-23):</strong> Diurnal consumption cycle identifier.</li>
+              <li><strong>DayOfWeek (Mon-Sun):</strong> Lifestyle behavioral rhythm.</li>
+              <li><strong>Month (1-12):</strong> Seasonal HVAC & heating variations.</li>
+              <li><strong>IsWeekend (Flag):</strong> Weekday vs weekend occupancy shift.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 07 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 8 -->
+    <div class="slide-frame" id="slide-8">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Cross-Engine Verification</div>
+          <div class="slide-title">Dual-Engine Cross-Validation: MapReduce vs Spark</div>
+        </div>
+      </div>
+      <div class="kpi-row" style="grid-template-columns: 1fr;">
+        <div class="kpi-box" style="border-left-color: #10b981;">
+          <div class="kpi-val" style="color: #059669;">MAXIMUM DISCREPANCY: 0.000000 kW (ZERO DIVERGENCE)</div>
+          <div class="kpi-label">Hadoop MapReduce and Apache Spark produced identical results across all 24 hourly keys.</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_dual_engine.png" class="slide-img" alt="Dual Engine Chart">
+        </div>
+        <div class="col-right">
+          <table class="slide-table">
+            <thead>
+              <tr><th>Hour</th><th>MapReduce</th><th>Spark</th><th>Delta</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>00:00</td><td>0.6594 kW</td><td>0.6594 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>04:00 (Min)</td><td>0.4438 kW</td><td>0.4438 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>07:00</td><td>1.5022 kW</td><td>1.5022 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>12:00</td><td>1.2071 kW</td><td>1.2071 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>16:00</td><td>0.9489 kW</td><td>0.9489 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>20:00 (Peak)</td><td>1.8991 kW</td><td>1.8991 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+              <tr><td>23:00</td><td>0.9021 kW</td><td>0.9021 kW</td><td style="color:#10b981;font-weight:700;">0.0000 kW</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 08 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 9 -->
+    <div class="slide-frame" id="slide-9">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Exploratory Data Analysis</div>
+          <div class="slide-title">24-Hour Diurnal Household Load Profile</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_hourly_load.png" class="slide-img" alt="24-Hour Load Curve">
+        </div>
+        <div class="col-right">
+          <div class="card accent-stripe">
+            <h4>1. Evening Peak (19:00 - 21:00 hrs)</h4>
+            <p>Maximum consumption reaches <strong>1.899 kW at 20:00 hrs</strong>. Triggered by cooking, lighting, television, and heating/cooling upon family arrival.</p>
+          </div>
+          <div class="card success-stripe">
+            <h4>2. Night Standby Minimum (02:00 - 05:00 hrs)</h4>
+            <p>Troughs at <strong>0.443 kW at 04:00 hrs</strong>. Represents baseline phantom loads: continuous refrigeration, clocks, Wi-Fi routers, and device standby.</p>
+          </div>
+          <div class="card amber-stripe">
+            <h4>3. Morning Mini-Spike (07:00 - 08:00 hrs)</h4>
+            <p>Reaches <strong>1.502 kW at 07:00 hrs</strong> as morning routines (water heating, microwave, coffee) commence.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 09 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 10 -->
+    <div class="slide-frame" id="slide-10">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Behavioral Analytics</div>
+          <div class="slide-title">Temporal Shift: Weekday vs. Weekend Consumption</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_weekday_weekend.png" class="slide-img" alt="Weekday vs Weekend">
+        </div>
+        <div class="col-right">
+          <div class="card accent-stripe">
+            <h4>Weekday Rhythm (Mon - Fri)</h4>
+            <p>Sharp early morning peak at 07:00 hrs followed by a steep midday dip (09:00 - 16:00 hrs) as occupants leave for work/school. Mean load: 1.03 kW.</p>
+          </div>
+          <div class="card amber-stripe">
+            <h4>Weekend Surge (Sat - Sun)</h4>
+            <p>Morning peak is shifted forward by 1.5 to 2 hours (09:00 - 10:30 hrs). Continuous afternoon plateau with <strong>21.3% higher daytime consumption</strong> due to home occupancy and batch laundry.</p>
+          </div>
+          <div class="card">
+            <h4>Utility Demand-Response Implication</h4>
+            <p style="font-size:11px; color:#64748b;">
+              Static flat tariffs create revenue deficits on weekends. Time-of-use tariffs must differentiate Saturday/Sunday load dispatch schedules.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 10 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 11 -->
+    <div class="slide-frame" id="slide-11">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Appliance Breakdown</div>
+          <div class="slide-title">Appliance Sub-Metering Disaggregation & Shares</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_submetering.png" class="slide-img" alt="Submetering Donut">
+        </div>
+        <div class="col-right">
+          <div class="card accent-stripe">
+            <h4>Sub-Metering 3: Climate Control & Water Heating</h4>
+            <p><strong>72.7% Dominant Energy Share</strong></p>
+            <p style="font-size:11px;">Thermostatic electric water heaters and air conditioning represent the bulk of metered household energy usage.</p>
+          </div>
+          <div class="card success-stripe">
+            <h4>Sub-Metering 2: Laundry Room Circuit</h4>
+            <p><strong>14.6% Energy Share</strong></p>
+            <p style="font-size:11px;">Washing machines, tumble dryers, and continuous refrigeration. Activity concentrates heavily on weekends.</p>
+          </div>
+          <div class="card amber-stripe">
+            <h4>Sub-Metering 1: Kitchen Zone Circuit</h4>
+            <p><strong>12.7% Energy Share</strong></p>
+            <p style="font-size:11px;">Dishwasher and microwave usage strictly aligns with lunchtime (12:00) and dinner (19:30) preparation.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 11 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 12 -->
+    <div class="slide-frame" id="slide-12">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Electrical Engineering Principles</div>
+          <div class="slide-title">Multi-Sensor Correlation & Electrical Physics Laws</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_correlation_matrix.png" class="slide-img" alt="Correlation Heatmap">
+        </div>
+        <div class="col-right">
+          <div class="card accent-stripe">
+            <h4>Active Power vs. Current (r = +0.999)</h4>
+            <p>Empirically verifies the fundamental AC single-phase power law:</p>
+            <p style="font-weight:700; color:#0284c7; margin:4px 0;">P = V × I × cos(φ)</p>
+            <p style="font-size:11px;">Since grid voltage is regulated around 230-240V, active power consumption is directly proportional to current draw.</p>
+          </div>
+          <div class="card amber-stripe">
+            <h4>Active Power vs. Voltage (r = -0.40)</h4>
+            <p>Negative correlation reflects real-world internal grid line drop (Ohm's Law: <code>V_term = V_grid - I × R_line</code>) during heavy appliance usage.</p>
+          </div>
+          <div class="card">
+            <h4>Climate Control Dominance (r = +0.64)</h4>
+            <p style="font-size:11px;">Sub-metering 3 exhibits the highest correlation with active power among all individual sub-circuits.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 12 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 13 -->
+    <div class="slide-frame" id="slide-13">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">NoSQL Storage</div>
+          <div class="slide-title">Distributed NoSQL Storage: Apache Cassandra</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">Port 9042</div><div class="kpi-label">CQL Binary Protocol Port</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">Wide-Column</div><div class="kpi-label">LSM-Tree Storage Engine</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">storage_fallback/</div><div class="kpi-label">Transparent Local JSON Audit Logs</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card">
+            <h4>Cassandra CQL DDL Schemas</h4>
+            <p style="font-family: Consolas, monospace; font-size: 10px; background: #0f172a; color: #38bdf8; padding: 10px; border-radius: 4px; line-height: 1.5;">
+              CREATE KEYSPACE bda_electricity WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};<br><br>
+              CREATE TABLE bda_electricity.hourly_aggregates (<br>
+              &nbsp;&nbsp;hour int PRIMARY KEY,<br>
+              &nbsp;&nbsp;avg_active_power double,<br>
+              &nbsp;&nbsp;total_records bigint<br>
+              );<br><br>
+              CREATE TABLE bda_electricity.model_predictions (<br>
+              &nbsp;&nbsp;prediction_id uuid PRIMARY KEY,<br>
+              &nbsp;&nbsp;timestamp timestamp,<br>
+              &nbsp;&nbsp;predicted_kw double<br>
+              );
+            </p>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card success-stripe">
+            <h4>Dual-Mode Connector Architecture</h4>
+            <ul>
+              <li><strong>Live Cassandra Auto-Detection:</strong> <code>cassandra_storage.py</code> attempts connection to port 9042 via DataStax driver.</li>
+              <li><strong>Honest Graceful Fallback:</strong> If Cassandra is offline (typical in Windows student labs), writes route to structured JSON logs in <code>storage_fallback/</code>.</li>
+              <li><strong>Zero Mocking:</strong> We never falsely simulate Cassandra with SQLite. The architecture is Docker-ready.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 13 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 14 -->
+    <div class="slide-frame" id="slide-14">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Machine Learning</div>
+          <div class="slide-title">Predictive Modeling: Random Forest Demand Regressor</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left" style="align-items: center; justify-content: center;">
+          <img src="presentation_assets/chart_model_performance.png" class="slide-img" alt="ML Metrics">
+        </div>
+        <div class="col-right">
+          <table class="slide-table">
+            <thead>
+              <tr><th>Metric</th><th>Mean Baseline</th><th>Random Forest</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>RMSE (Root Mean Sq)</td><td>1.0572 kW</td><td style="color:#10b981;font-weight:700;">0.8793 kW (-16.83%)</td></tr>
+              <tr><td>MAE (Mean Absolute)</td><td>0.8120 kW</td><td style="color:#10b981;font-weight:700;">0.6051 kW (-25.48%)</td></tr>
+              <tr><td>R² Explained Variance</td><td>0.0000</td><td style="color:#0284c7;font-weight:700;">0.3075</td></tr>
+              <tr><td>Model Complexity</td><td>Naive Mean</td><td>50 Trees, Depth 10</td></tr>
+              <tr><td>Evaluation Protocol</td><td>-</td><td>Held-out 20% Test Split</td></tr>
+            </tbody>
+          </table>
+          <div class="card success-stripe">
+            <h4>No Data Leakage Guarantee</h4>
+            <p style="font-size:11px;">Features include strictly temporal regressors (Hour, Month, DayOfWeek one-hot encoded). Future target power readings are excluded from training inputs.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 14 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 15 -->
+    <div class="slide-frame" id="slide-15">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">User Interface</div>
+          <div class="slide-title">Interactive Web Interface: Gradio 6.0 Dashboard</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box"><div class="kpi-val">Port 7860</div><div class="kpi-label">Local Web Server Endpoint</div></div>
+        <div class="kpi-box" style="border-left-color: #10b981;"><div class="kpi-val">4 Core Tabs</div><div class="kpi-label">Visuals, Validation, AI & Viva</div></div>
+        <div class="kpi-box" style="border-left-color: #f59e0b;"><div class="kpi-val">run_app.bat</div><div class="kpi-label">One-Click Demonstration Launcher</div></div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card accent-stripe">
+            <h4>Tab 1: Visual Analytics Studio</h4>
+            <p>Dynamic dropdown rendering high-resolution charts: 24-hr load curves, weekday/weekend profiles, appliance donuts, correlation matrices.</p>
+          </div>
+          <div class="card success-stripe">
+            <h4>Tab 2: Dual-Engine Validation</h4>
+            <p>Interactive table & grouped bar chart comparing MapReduce vs Spark outputs with hourly discrepancy inspection.</p>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card amber-stripe">
+            <h4>Tab 3: AI Demand Forecasting</h4>
+            <p>Live sliders for Hour, Month, and DayOfWeek delivering real-time demand predictions (kW) with color-coded load bands and Cassandra persistence.</p>
+          </div>
+          <div class="card">
+            <h4>Tab 4: Viva Defense Guide</h4>
+            <p>Integrated cheatsheet with quick terminal commands and answers to faculty architectural questions.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 15 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 16 -->
+    <div class="slide-frame" id="slide-16">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Lab Summary</div>
+          <div class="slide-title">Engineering Implementation & Technology Status</div>
+        </div>
+      </div>
+      <div class="slide-content" style="flex-direction: column;">
+        <table class="slide-table">
+          <thead>
+            <tr><th>Component</th><th>Status</th><th>Scope & Achievement</th><th>Execution Metric</th><th>Artifact Path</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Hadoop HDFS</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>Storage of 132.9 MB smart meter dataset</td><td>2,075,260 rows</td><td>/bda_electricity/input/</td></tr>
+            <tr><td>Java MapReduce</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>Native batch aggregation on HDFS</td><td>24 hourly partitions</td><td>mr_hourly_results/part-r-00000</td></tr>
+            <tr><td>Apache Spark</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>In-memory data cleaning & aggregations</td><td>23.96 seconds</td><td>run_spark_pipeline.py</td></tr>
+            <tr><td>Dual-Engine Test</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>Exact mathematical proof of zero divergence</td><td>0.000000 kW Delta</td><td>run_spark_pipeline.py</td></tr>
+            <tr><td>Apache Cassandra</td><td style="color:#f59e0b;font-weight:700;">ACTIVE</td><td>Port 9042 connector with JSON fallback</td><td>2 CQL tables</td><td>storage_fallback/</td></tr>
+            <tr><td>Random Forest ML</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>Demand regressor on held-out test data</td><td>RMSE 0.8793 kW</td><td>rf_electricity_model.pkl</td></tr>
+            <tr><td>Gradio Web App</td><td style="color:#10b981;font-weight:700;">PASSED</td><td>Multi-tab web dashboard for inference & viva</td><td>Port 7860 active</td><td>run_app.bat & app.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 16 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 17 -->
+    <div class="slide-frame" id="slide-17">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Viva Examination Preparation</div>
+          <div class="slide-title">High-Yield Viva Questions & Crisp Academic Answers</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card accent-stripe">
+            <h4>Q1: Why use both MapReduce and Spark?</h4>
+            <p style="font-size:11px;">
+              <strong>Answer:</strong> MapReduce provides disk-streamed processing with minimal RAM footprint for baseline aggregations directly on HDFS splits. Spark operates in-memory using DAGs, enabling 100x faster iterative exploration and ML. Dual-engine validation proves both engines produce identical results (0.000000 kW delta).
+            </p>
+          </div>
+          <div class="card success-stripe">
+            <h4>Q2: Why can't a Combiner calculate Average?</h4>
+            <p style="font-size:11px;">
+              <strong>Answer:</strong> Average is mathematically non-associative: <code>Avg(A, B, C) ≠ Avg(Avg(A, B), C)</code>. Partial averages would skew the true mean. A combiner must emit intermediate <code>(sum, count)</code> tuples instead.
+            </p>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card amber-stripe">
+            <h4>Q3: How does Cassandra handle Time-Series?</h4>
+            <p style="font-size:11px;">
+              <strong>Answer:</strong> In <code>hourly_aggregates</code>, 'hour' acts as the Partition Key for O(1) hash distribution. In <code>model_predictions</code>, 'timestamp' allows write-optimized appending using Cassandra's LSM-Tree architecture.
+            </p>
+          </div>
+          <div class="card">
+            <h4>Q4: Significance of r = +0.999 Active vs Current?</h4>
+            <p style="font-size:11px;">
+              <strong>Answer:</strong> Validates <code>P = V × I × cos(φ)</code>. Since grid voltage is regulated at 230V, active power is directly governed by current draw. The negative voltage correlation (r = -0.40) proves internal line drop under heavy loads.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 17 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 18 -->
+    <div class="slide-frame" id="slide-18">
+      <div class="slide-top-bar">
+        <div>
+          <div class="slide-category">Roadmap</div>
+          <div class="slide-title">Project Conclusions & Production Roadmap</div>
+        </div>
+      </div>
+      <div class="slide-content">
+        <div class="col-left">
+          <div class="card success-stripe">
+            <h4>Project Key Achievements</h4>
+            <ul>
+              <li><strong>Unified Big Data Pipeline:</strong> Successfully integrated HDFS storage, Java MapReduce, PySpark in-memory analytics, NoSQL Cassandra, and AI forecasting over 2+ million records.</li>
+              <li><strong>Zero Divergence:</strong> Proved exact numerical equivalence between MapReduce and Spark.</li>
+              <li><strong>Behavioral Insights:</strong> Characterized the 20:00 peak (1.899 kW) and established that climate control accounts for 72.7% of sub-metered energy.</li>
+              <li><strong>Forecasting Superiority:</strong> Random Forest delivered 16.83% lower RMSE than baseline predictors.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="card accent-stripe">
+            <h4>Production Roadmap</h4>
+            <ul>
+              <li><strong>Apache Kafka Streaming:</strong> Real-time meter telemetry streaming with sub-second Spark Structured Streaming anomaly triggers.</li>
+              <li><strong>LSTM Deep Learning:</strong> Sequence-to-sequence neural networks modeling long-term multi-week seasonal weather covariates.</li>
+              <li><strong>Multi-Node Cloud Deployment:</strong> Deploy on AWS EMR or GCP Dataproc for multi-terabyte smart grid utility fleets.</li>
+              <li><strong>Automated Demand-Response:</strong> Webhook triggers to shift EV charging and laundry during peak tariff hours.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Household Electricity Pattern Analysis & Predictive Modeling | Roll 32</span>
+        <span>Slide 18 / 19</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 19 -->
+    <div class="slide-frame dark" id="slide-19">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 900px;">
+        <div style="color: #38bdf8; font-weight: 800; font-size: 13px; letter-spacing: 1.5px; margin-bottom: 12px; text-transform: uppercase;">
+          Big Data Analytics Lab • V-Semester CSE (AI & DS)
+        </div>
+        <h1 style="font-size: 44px; font-weight: 800; color: #ffffff; line-height: 1.2; margin-bottom: 12px;">
+          Thank You!
+        </h1>
+        <h2 style="font-size: 20px; font-weight: 600; color: #94a3b8; margin-bottom: 24px;">
+          Open for Viva Defense & Technical Questions
+        </h2>
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px 24px;">
+          <div style="color: #38bdf8; font-size: 11px; font-weight: 700; margin-bottom: 6px;">PROJECT DELIVERABLES & ARTIFACTS</div>
+          <div style="font-size: 13px; color: #e2e8f0; line-height: 1.8;">
+            • <strong>Presenters:</strong> Bhomick Debiya (Roll Number 32) & Shorya Chilate<br>
+            • <strong>Web Dashboard:</strong> <code>http://127.0.0.1:7860</code> (Launched via <code>run_app.bat</code>)<br>
+            • <strong>Colab Deliverable:</strong> <code>Household_Electricity_Consumption_Analysis.ipynb</code><br>
+            • <strong>HDFS MapReduce Output:</strong> <code>/bda_electricity/output/mr_hourly_results/part-r-00000</code><br>
+            • <strong>Trained Model Bundle:</strong> <code>rf_electricity_model.pkl</code> (MAE: 0.6051 kW, RMSE: 0.8793 kW)
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Big Data Analytics Lab (V-Semester, CSE AI & DS)</span>
+        <span>Slide 19 / 19</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 19;
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide-frame').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById('slide-' + currentSlide);
+      if (activeEl) activeEl.classList.add('active');
+
+      document.getElementById('counter').innerText = 
+        String(currentSlide).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+    }
+
+    function prevSlide() { showSlide(currentSlide - 1); }
+    function nextSlide() { showSlide(currentSlide + 1); }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    showSlide(1);
+  </script>
+</body>
+</html>

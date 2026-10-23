@@ -1,0 +1,239 @@
+================================================================================
+AUTONOMOUS PROJECT UPGRADE REPORT — BIG DATA ANALYTICS LAB
+================================================================================
+Project Title:   Household Electricity Pattern Analysis & Predictive Modeling
+Course:          Big Data Analytics Lab, V-Semester, CSE (AI & Data Science)
+Project Members: Bhomick Debiya (Roll Number 32) & Shorya Chilate
+Project Folder:  D:\hadoop-project\BDA PROJECT
+Date:            October 2026
+
+================================================================================
+1. WHAT WAS REUSED FROM THE ORIGINAL PROJECT
+================================================================================
+- Dataset Intact: The original 132.9 MB smart-meter dataset
+  (household_power_consumption.txt) was preserved untouched
+  (2,075,260 raw readings, semicolon delimiter, '?' missing-value notation).
+- Colab Notebook Preserved: Created an untouched backup before making changes
+  (Household_Electricity_Consumption_Analysis_ORIGINAL_BACKUP.ipynb).
+- Spark Analytics & Visualizations: Reused and refined the core PySpark
+  temporal aggregations, sub-metering breakdown (Climate 72.7%, Laundry 14.6%,
+  Kitchen 12.6%), 24-hour load curves, weekday vs. weekend profiles, and
+  correlation analysis.
+- Prediction Model & Gradio Flow: Reused the Random Forest architecture and
+  Gradio user interface logic, upgrading them for Gradio 6.0 and integrating
+  live storage persistence.
+
+================================================================================
+2. WHAT WAS IMPLEMENTED OR REPAIRED
+================================================================================
+1. Real HDFS Storage Integration:
+   - Initialized and connected to local HDFS daemons (NameNode on port 9000, DataNode).
+   - Created dedicated HDFS project directories: /bda_electricity/input and
+     /bda_electricity/output.
+   - Uploaded the 132.9 MB dataset to HDFS and verified block allocation.
+
+2. Real Hadoop MapReduce Job (Java & Python Streaming):
+   - Implemented native Java MapReduce classes matching academic lab standards:
+     * HourlyElectricityMapper.java
+     * HourlyElectricityReducer.java
+     * HourlyElectricityDriver.java
+   - Created build_jar.bat and compiled hourly_electricity.jar using the local
+     Java 8 compiler (D:\BDA\java) and Hadoop 3.2.4 classpath.
+   - Implemented Python Hadoop Streaming scripts (mapper.py, reducer.py).
+   - Executed the MapReduce job over all 2,075,260 records on HDFS:
+     * Mapped 2,049,280 clean records (dropped 25,980 missing '?' records).
+     * Grouped and sorted by 24 hourly keys (00 to 23).
+     * Reduced into exact 24-hour average active power load.
+     * Output saved in HDFS and exported locally to mr_hourly_results/part-r-00000.
+
+3. Dual-Engine Cross-Validation:
+   - Automated a cross-engine comparison in run_spark_pipeline.py.
+   - Proved that Hadoop MapReduce and Apache Spark produce identical hourly averages
+     with a MAXIMUM DISCREPANCY OF 0.000000 kW (zero divergence).
+
+4. Apache Cassandra Module with Honest Fallback:
+   - Implemented cassandra_storage.py with CQL DDL schemas for keyspace
+     'bda_electricity' and tables 'hourly_aggregates' and 'model_predictions'.
+   - Built an auto-detecting connector: connects to port 9042 if Cassandra is running;
+     otherwise gracefully routes persistence to structured local JSON storage in
+     storage_fallback/ without crashing or falsely claiming Cassandra is live.
+
+5. Gradio 6.0 Web Dashboard & Model Bundle:
+   - Resolved Gradio 6.0 compatibility warnings and fixed Windows console encoding.
+   - Fitted and bundled the Random Forest model into rf_electricity_model.pkl
+     alongside held-out test evaluation metrics.
+   - Built a one-click launcher run_app.bat.
+
+6. Upgraded Notebook & Documentation:
+   - Upgraded Household_Electricity_Consumption_Analysis.ipynb (37 cells, valid JSON,
+     Colab-ready with ASCII architecture diagram, MapReduce, Spark, Cassandra, ML, Gradio).
+   - Created comprehensive README.md and VIVA_GUIDE.md.
+
+7. Formal 19-Slide PowerPoint Presentation & Interactive Web Deck:
+   - Generated native PowerPoint deck (Household_Electricity_Big_Data_Analytics_Presentation.pptx,
+     1.19 MB, 16:9 widescreen) with formal academic theme (midnight navy, slate cards, cyan & emerald accents).
+   - Created 6 publication-grade 300 DPI high-resolution figures in presentation_assets/:
+     * Chart 1: 24-Hour Load Curve (evening peak & base load highlights)
+     * Chart 2: Weekday vs Weekend Temporal Pattern Shift
+     * Chart 3: Appliance Sub-Metering Energy Share Donut
+     * Chart 4: Correlation Matrix Heatmap of Multi-Sensor Parameters
+     * Chart 5: Dual-Engine Verification Grouped Bar Chart (0.000000 kW delta)
+     * Chart 6: Model Evaluation Metrics (Random Forest vs Mean Baseline)
+   - Embedded professional data tables, KPI metric callouts, and architectural layer diagrams.
+   - Built an interactive, zero-dependency browser slide deck (presentation_preview.html)
+     supporting full keyboard navigation (Arrows, Spacebar, F for Fullscreen).
+
+================================================================================
+3. WHICH TECHNOLOGIES ACTUALLY RAN SUCCESSFULLY
+================================================================================
+| Component              | Status          | Details                                    |
+|------------------------|-----------------|--------------------------------------------|
+| HDFS                   | PASSED          | NameNode & DataNode active, data in /bda_electricity |
+| Hadoop MapReduce       | PASSED          | Real Java batch job executed on HDFS; 24 keys output |
+| Apache Spark (PySpark) | PASSED          | Spark 3.5.5 executed cleaning, aggregations, features|
+| Dual-Engine Validation | PASSED          | Perfect mathematical match (0.000000 kW delta)|
+| Machine Learning (RF)  | PASSED          | MAE: 0.6051 kW, RMSE: 0.8793 kW (16.83% vs baseline)|
+| Gradio Dashboard       | PASSED          | Web app tested and responsive on port 7860 |
+| Apache Cassandra       | FALLBACK ACTIVE | Port 9042 offline locally; fallback in storage_fallback/ |
+| PowerPoint (.pptx)     | PASSED          | 19 formal widescreen slides with tables, 6 charts & cards |
+| Web Slide Deck (.html) | PASSED          | Interactive browser presentation with keyboard controls |
+
+================================================================================
+4. EXACT COMMANDS TO LAUNCH THE WORKING PROJECT
+================================================================================
+Open PowerShell or Command Prompt:
+
+A. Run Hadoop MapReduce Job:
+   cd /d "D:\hadoop-project\BDA PROJECT"
+   run_mapreduce.bat
+   (Or manually: hadoop jar "D:\hadoop-project\BDA PROJECT\java_mapreduce\hourly_electricity.jar" HourlyElectricityDriver /bda_electricity/input/household_power_consumption.txt /bda_electricity/output/mr_hourly_results)
+
+B. Run the Complete Spark Pipeline & ML Model Training:
+   cd /d "D:\hadoop-project\BDA PROJECT"
+   python run_spark_pipeline.py
+
+C. Launch the Interactive Gradio Web Dashboard:
+   cd /d "D:\hadoop-project\BDA PROJECT"
+   run_app.bat
+   Then open your browser at http://127.0.0.1:7860
+
+================================================================================
+5. KEY FILE PATHS
+================================================================================
+- Updated Colab Notebook:
+  D:\hadoop-project\BDA PROJECT\Household_Electricity_Consumption_Analysis.ipynb
+
+- Original Notebook Backup:
+  D:\hadoop-project\BDA PROJECT\Household_Electricity_Consumption_Analysis_ORIGINAL_BACKUP.ipynb
+
+- Project Documentation:
+  D:\hadoop-project\BDA PROJECT\README.md
+
+- Viva Defense Cheatsheet:
+  D:\hadoop-project\BDA PROJECT\VIVA_GUIDE.md
+
+- Java MapReduce Source & Jar:
+  D:\hadoop-project\BDA PROJECT\java_mapreduce\HourlyElectricityMapper.java
+  D:\hadoop-project\BDA PROJECT\java_mapreduce\HourlyElectricityReducer.java
+  D:\hadoop-project\BDA PROJECT\java_mapreduce\HourlyElectricityDriver.java
+  D:\hadoop-project\BDA PROJECT\java_mapreduce\hourly_electricity.jar
+
+- Hadoop MapReduce Output (from HDFS):
+  D:\hadoop-project\BDA PROJECT\mr_hourly_results\part-r-00000
+
+- Complete Spark Pipeline Script:
+  D:\hadoop-project\BDA PROJECT\run_spark_pipeline.py
+
+- Fitted Model Bundle:
+  D:\hadoop-project\BDA PROJECT\rf_electricity_model.pkl
+
+- Cassandra Storage Module & Fallback:
+  D:\hadoop-project\BDA PROJECT\cassandra_storage.py
+  D:\hadoop-project\BDA PROJECT\storage_fallback\hourly_aggregates_fallback.json
+  D:\hadoop-project\BDA PROJECT\storage_fallback\model_predictions_fallback.json
+
+- Gradio Web Application & Launcher:
+  D:\hadoop-project\BDA PROJECT\app.py
+  D:\hadoop-project\BDA PROJECT\run_app.bat
+
+- PowerPoint Presentation (.pptx) & Interactive Web Deck:
+  D:\hadoop-project\BDA PROJECT\Household_Electricity_Big_Data_Analytics_Presentation.pptx
+  D:\hadoop-project\BDA PROJECT\presentation_preview.html
+  D:\hadoop-project\BDA PROJECT\build_presentation.py
+  D:\hadoop-project\BDA PROJECT\generate_presentation_charts.py
+  D:\hadoop-project\BDA PROJECT\presentation_assets\ (6 high-resolution PNG charts)
+
+================================================================================
+6. TEST RESULTS & REMAINING NOTES
+================================================================================
+- HDFS & MapReduce: 2,075,260 input records processed, 25,980 null records dropped,
+  2,049,280 clean records aggregated across 24 reduce partitions.
+- Spark & ML Pipeline: Successfully ran in 23.96 seconds. Model evaluated on held-out
+  test data without data leakage.
+- Cassandra Note: No local Cassandra service was installed on Windows. Rather than
+  fabricating results, the code implements honest auto-detection. If the faculty
+  requests live Cassandra, start Docker:
+  docker run -d --name cassandra-bda -p 9042:9042 cassandra:latest
+  and re-run cassandra_storage.py - it will connect immediately without code edits.
+
+================================================================================
+7. FORMAL 19-SLIDE POWERPOINT PRESENTATION SUMMARY
+================================================================================
+Slide 01: Title Slide (Formal Midnight Navy, Project Authors, Roll 32, Tech Stack Badges)
+Slide 02: Executive Summary & Industrial Context (2.07M readings, RDBMS vs Big Data limits)
+Slide 03: Dataset Attributes & 5-Step Cleaning Funnel (98.75% clean retention, no synthetic bias)
+Slide 04: End-to-End Multi-Tier Architecture (HDFS -> MR/Spark -> Cassandra -> Gradio)
+Slide 05: Storage Layer: Hadoop HDFS Implementation (Port 9000, DataNodes, CLI commands)
+Slide 06: Batch Engine: Java MapReduce (Mapper, Reducer, and why Combiners cannot do average)
+Slide 07: In-Memory Engine: Apache Spark & PySpark (Catalyst optimizer, 23.9s runtime)
+Slide 08: Dual-Engine Cross-Validation (Grouped Bar Chart + Table: 0.000000 kW Delta)
+Slide 09: EDA: 24-Hour Diurnal Load Profile (Chart 1: 1.899 kW peak vs 0.443 kW base load)
+Slide 10: Behavioral Shifts: Weekday vs Weekend (Chart 2: Delayed wake-up, +21.3% weekend load)
+Slide 11: Appliance Disaggregation (Chart 3: Climate 72.7%, Laundry 14.6%, Kitchen 12.7%)
+Slide 12: Electrical Physics & Correlation (Chart 4: P=VI*cos(phi) r=+0.999, Voltage drop r=-0.40)
+Slide 13: Distributed NoSQL Database (Cassandra CQL DDL, Port 9042, storage_fallback/)
+Slide 14: Machine Learning: Random Forest (Chart 6 + Table: MAE 0.6051 kW, RMSE 0.8793 kW)
+Slide 15: Interactive UI: Gradio 6.0 Web Dashboard (Visuals, Validation, AI & Viva Tabs)
+Slide 16: Engineering Implementation Status (Master 7-component status table, all PASSED/ACTIVE)
+Slide 17: Viva Defense Guide: High-Yield Questions (Combiner rules, DAG lineage, LSM-trees)
+Slide 18: Project Conclusions & Production Roadmap (Kafka streaming, LSTM, AWS EMR cloud)
+Slide 19: Thank You & Technical Defense Discussion (Closing Dark Slide, Repository Deliverables)
+
+================================================================================
+8. CRUCIAL VIVA CONCEPTS & Q&A FOR MONDAY
+================================================================================
+Q1: Why use both MapReduce and Spark?
+A1: - MapReduce: Disk-based batch processing with minimal memory footprint, ideal for
+      baseline aggregation directly on raw HDFS splits without memory overflow.
+    - Spark: In-memory engine using Directed Acyclic Graphs (DAGs) and DataFrame
+      caching, up to 100x faster for multi-pass iterative analysis, correlation
+      heatmaps, and ML.
+    - Dual-Engine Verification: Comparing both outputs showed a 0.000000 kW discrepancy,
+      proving mathematical correctness.
+
+Q2: What does the MapReduce Mapper and Reducer do here?
+A2: - Mapper splits records by ';', filters nulls ('?'), extracts the hour from the
+      timestamp, and emits (Hour, Power).
+    - Shuffle & Sort automatically groups all power values belonging to each hour key.
+    - Reducer computes Hourly Average = sum(Power) / count(Valid Minutes).
+
+Q3: Why can't a Combiner calculate Average directly?
+A3: Average is non-associative (Avg(A, B, C) != Avg(Avg(A, B), C)). A combiner would
+    distort results unless it passes intermediate (sum, count) tuples instead of averages.
+
+Q4: Key Analytical Insights to Mention:
+A4: - Evening Peak: 19:00 - 21:00 hrs (~1.899 kW), driven by cooking, lighting, AC.
+    - Base Load Minimum: 02:00 - 05:00 hrs (~0.443 kW), idle standby & refrigeration.
+    - Sub-Metering Shares: Climate control (heating/AC) dominates at 72.7%,
+      laundry is 14.6%, and kitchen is 12.6%.
+    - Current vs Active Power Correlation: +0.999 (verifying P = V * I * cos(phi)).
+    - Voltage Inversion: -0.40 correlation with heavy loads due to grid line drops.
+
+Q5: High-Priority Commands to Remember:
+A5: - Check active daemons: jps
+    - View HDFS input:      hdfs dfs -ls /bda_electricity/input
+    - View HDFS MR output:  hdfs dfs -cat /bda_electricity/output/mr_hourly_results/part-r-00000
+    - Run MapReduce job:    run_mapreduce.bat
+    - Run Spark Pipeline:   python run_spark_pipeline.py
+    - Launch Web Dashboard: run_app.bat
+================================================================================

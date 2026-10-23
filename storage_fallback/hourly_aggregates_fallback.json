@@ -1,0 +1,129 @@
+{
+  "storage_type": "LOCAL_FALLBACK (Cassandra Offline)",
+  "keyspace_target": "bda_electricity",
+  "table_target": "hourly_aggregates",
+  "source": "SPARK_MAPREDUCE_PIPELINE",
+  "updated_at": "2026-10-22T16:14:19.711662",
+  "records": [
+    {
+      "hour": 0,
+      "avg_active_power": 0.6594,
+      "total_records": 85491
+    },
+    {
+      "hour": 1,
+      "avg_active_power": 0.5393,
+      "total_records": 85440
+    },
+    {
+      "hour": 2,
+      "avg_active_power": 0.4806,
+      "total_records": 85439
+    },
+    {
+      "hour": 3,
+      "avg_active_power": 0.4449,
+      "total_records": 85428
+    },
+    {
+      "hour": 4,
+      "avg_active_power": 0.4438,
+      "total_records": 85317
+    },
+    {
+      "hour": 5,
+      "avg_active_power": 0.4537,
+      "total_records": 85260
+    },
+    {
+      "hour": 6,
+      "avg_active_power": 0.7916,
+      "total_records": 85259
+    },
+    {
+      "hour": 7,
+      "avg_active_power": 1.5022,
+      "total_records": 85284
+    },
+    {
+      "hour": 8,
+      "avg_active_power": 1.461,
+      "total_records": 85295
+    },
+    {
+      "hour": 9,
+      "avg_active_power": 1.3316,
+      "total_records": 85316
+    },
+    {
+      "hour": 10,
+      "avg_active_power": 1.2606,
+      "total_records": 85248
+    },
+    {
+      "hour": 11,
+      "avg_active_power": 1.2458,
+      "total_records": 85248
+    },
+    {
+      "hour": 12,
+      "avg_active_power": 1.2071,
+      "total_records": 85317
+    },
+    {
+      "hour": 13,
+      "avg_active_power": 1.1445,
+      "total_records": 85340
+    },
+    {
+      "hour": 14,
+      "avg_active_power": 1.0828,
+      "total_records": 85405
+    },
+    {
+      "hour": 15,
+      "avg_active_power": 0.9908,
+      "total_records": 85378
+    },
+    {
+      "hour": 16,
+      "avg_active_power": 0.9489,
+      "total_records": 85335
+    },
+    {
+      "hour": 17,
+      "avg_active_power": 1.0551,
+      "total_records": 85334
+    },
+    {
+      "hour": 18,
+      "avg_active_power": 1.3265,
+      "total_records": 85347
+    },
+    {
+      "hour": 19,
+      "avg_active_power": 1.7333,
+      "total_records": 85542
+    },
+    {
+      "hour": 20,
+      "avg_active_power": 1.8991,
+      "total_records": 85615
+    },
+    {
+      "hour": 21,
+      "avg_active_power": 1.8777,
+      "total_records": 85529
+    },
+    {
+      "hour": 22,
+      "avg_active_power": 1.4126,
+      "total_records": 85553
+    },
+    {
+      "hour": 23,
+      "avg_active_power": 0.9021,
+      "total_records": 85560
+    }
+  ]
+}
