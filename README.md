@@ -1,9 +1,16 @@
 # Household Electricity Pattern Analysis & Predictive Modeling
 ### **Big Data Analytics Lab (V-Semester, CSE AI & Data Science)**
+**Institution:** Ramdeobaba University, Nagpur  
 **Course:** Big Data Analytics Lab  
+**Faculty Mentors:** Prof. Sonam Chopade & Prof. Samiha Khan  
 **Project Members:**
 - **Bhomick Debiya** — Roll Number: 32
-- **Shorya Chilate**
+- **Shourya Chilate** — Roll Number: 58
+
+**Deliverables:**
+- [Official Academic Project Report (PDF)](./Household_Electricity_Big_Data_Analytics_Project_Report.pdf)
+- [PowerPoint Presentation (.pptx)](./Household_Electricity_Big_Data_Analytics_Presentation.pptx)
+- [Colab / Jupyter Notebook (.ipynb)](./Household_Electricity_Consumption_Analysis.ipynb)
 
 ---
 

@@ -1,6 +1,7 @@
 # Big Data Analytics Lab — Viva Defense Guide
-### **Household Electricity Pattern Analysis & Predictive Modeling**
-**Students:** Bhomick Debiya (Roll 32), Shorya Chilate  
+**Institution:** Ramdeobaba University, Nagpur  
+**Students:** Bhomick Debiya (Roll 32), Shourya Chilate (Roll 58)  
+**Faculty Mentors:** Prof. Sonam Chopade & Prof. Samiha Khan  
 **Course:** Big Data Analytics Lab (V-Semester, CSE AI & Data Science)
 
 ---
